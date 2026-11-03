@@ -6,7 +6,12 @@ pub enum Method {
     POST,
     PUT,
     PATCH,
-    DELETE
+    DELETE,
+    QUERY,
+    HEAD,
+    OPTIONS,
+    TRACE,
+    CONNECT
 }
 
 
@@ -20,6 +25,11 @@ impl FromStr for Method {
             "PATCH" => Ok(Self::PATCH),
             "PUT" => Ok(Self::PUT),
             "DELETE" => Ok(Self::DELETE),
+            "QUERY" => Ok(Self::QUERY),
+            "HEAD" => Ok(Self::HEAD),
+            "OPTIONS" => Ok(Self::OPTIONS),
+            "TRACE" => Ok(Self::TRACE),
+            "CONNECT" => Ok(Self::CONNECT),
             _ => Err(String::from("Invalid http method"))
         }
     }
