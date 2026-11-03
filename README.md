@@ -1,4 +1,4 @@
-# logs-analyzer
+# Logs Analyzer
 
 A minimal, low-level HTTP log analyzer written in Rust.
 
