@@ -12,7 +12,7 @@ fn main() {
 
     }
 
-    let file = File::open("./examples/server01.log");
+    let file = File::open(&args[1]);
     
     if file.is_err() {
         println!("Error: could not open that file");
@@ -33,8 +33,10 @@ fn main() {
         match read_lines {
             Ok(0) => break,
             Ok(_) => {
-                let log = log::Log::new(&line);
-                println!("{:?}", log);
+                match log::Log::new(&line) {
+                    Ok(log) => println!("{:?}", log),
+                    Err(err) => println!("Error: reading line number {}: {}", line_number, err),
+                }
             }
             Err(_) => {
                 println!("Error: reading line number {}", line_number);

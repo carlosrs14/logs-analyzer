@@ -18,12 +18,16 @@ impl DateTime {
             .split(['-', ':', 'T', 'Z'])
             .collect();
 
-        let year = params[0].parse::<i16>().unwrap();
-        let month = params[1].parse::<i16>().unwrap();
-        let day = params[2].parse::<i16>().unwrap();
-        let hour = params[3].parse::<i16>().unwrap();
-        let mins = params[4].parse::<i16>().unwrap();
-        let secs = params[5][..params[5].len()-1].parse::<i16>().unwrap();
+        if params.len() < 6 {
+            return Err(String::from("Invalid datetime format"));
+        }
+
+        let year = params[0].parse::<i16>().map_err(|e| e.to_string())?;
+        let month = params[1].parse::<i16>().map_err(|e| e.to_string())?;
+        let day = params[2].parse::<i16>().map_err(|e| e.to_string())?;
+        let hour = params[3].parse::<i16>().map_err(|e| e.to_string())?;
+        let mins = params[4].parse::<i16>().map_err(|e| e.to_string())?;
+        let secs = params[5][..params[5].len()-1].parse::<i16>().map_err(|e| e.to_string())?;
 
         return Ok(Self { year, month, day, hour, mins, secs });
     }
