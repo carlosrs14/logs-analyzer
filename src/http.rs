@@ -26,12 +26,14 @@ impl FromStr for Method {
 }
 
 #[derive(Debug)]
+#[allow(non_camel_case_types)]
 pub enum StatusCode {
     OK = 200,
     CREATED = 201,
-    NOCONTENT = 204,
+    NO_CONTENT = 204,
     UNAUTHORIZED = 401,
-    FORBIDDEN = 403
+    FORBIDDEN = 403,
+    INTERNAL_SERVER_ERROR = 500
 }
 
 impl FromStr for StatusCode {
@@ -41,9 +43,10 @@ impl FromStr for StatusCode {
         return match s {
             "200" => Ok(Self::OK),
             "201" => Ok(Self::CREATED),
-            "204" => Ok(Self::NOCONTENT),
+            "204" => Ok(Self::NO_CONTENT),
             "401" => Ok(Self::UNAUTHORIZED),
             "403" => Ok(Self::FORBIDDEN),
+            "500" => Ok(Self::INTERNAL_SERVER_ERROR),
             _ => Err(String::from("Invalid http status code"))
         }
     }

@@ -15,7 +15,7 @@ pub struct Log {
 
 impl Log {
     pub fn new(log_str: &str) -> Self {
-        let params: Vec<&str> = log_str.split(',').collect();
+        let params: Vec<&str> = log_str.split([',', '\n']).collect();
 
         let datetime = util::DateTime::new(params[0])
             .unwrap();
