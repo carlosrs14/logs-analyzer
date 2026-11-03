@@ -1,8 +1,17 @@
-use std::{fs::File, io::{BufRead, BufReader}};
+use std::{env, fs::File, io::{BufRead, BufReader}};
 
 use logs_analyzer::{log};
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    
+    if args.len() < 2 {
+        println!("Error: Invalid usage");
+        print_usage();
+        return;
+
+    }
+
     let file = File::open("./examples/server01.log");
     
     if file.is_err() {
@@ -33,4 +42,8 @@ fn main() {
             }
         }
     }
+}
+
+fn print_usage() {
+    println!("logs_analyzer <filename>");
 }
