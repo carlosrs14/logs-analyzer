@@ -5,12 +5,12 @@ use crate::util;
 
 #[derive(Debug)]
 pub struct Log {
-    datetime: util::DateTime,
-    ip: util::Ip,
-    method: http::Method,
-    path: String,
-    status: http::StatusCode,
-    duration_ms: i32
+    pub datetime: util::DateTime,
+    pub ip: util::Ip,
+    pub method: http::Method,
+    pub path: String,
+    pub status: http::StatusCode,
+    pub duration_ms: i32
 }
 
 impl Log {

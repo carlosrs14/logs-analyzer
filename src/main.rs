@@ -1,30 +1,33 @@
-use std::{env, fs::File, io::{BufRead, BufReader}};
-
-use logs_analyzer::{log};
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+    process,
+};
+use logs_analyzer::{http, log, util::{CliArgs, print_usage}};
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    
-    if args.len() < 2 {
-        println!("Error: Invalid usage");
-        print_usage();
-        return;
+    let cli_args = match CliArgs::parse() {
+        Ok(Some(args)) => args,
+        Ok(None) => return,
+        Err(err) => {
+            eprintln!("Error: {}", err);
+            print_usage();
+            process::exit(1);
+        }
+    };
 
-    }
+    let file = match File::open(&cli_args.file_path) {
+        Ok(f) => f,
+        Err(e) => {
+            eprintln!("Error: could not open '{}': {}", cli_args.file_path, e);
+            process::exit(1);
+        }
+    };
 
-    let file = File::open(&args[1]);
-    
-    if file.is_err() {
-        println!("Error: could not open that file");
-        return;
-    }
-
-    let file =  file.unwrap();
     let mut reader = BufReader::new(file);
     let mut line_number: u32 = 0;
-
     let mut line = String::new();
-    
+
     loop {
         line.clear();
         let read_lines = reader.read_line(&mut line);
@@ -34,18 +37,26 @@ fn main() {
             Ok(0) => break,
             Ok(_) => {
                 match log::Log::new(&line) {
-                    Ok(log) => println!("{:?}", log),
-                    Err(err) => println!("Error: reading line number {}: {}", line_number, err),
+                    Ok(log) => {
+                        if let Some(m) = cli_args.method {
+                            if log.method != m {
+                                continue;
+                            }
+                        }
+                        if let Some(s) = cli_args.status {
+                            if log.status != s {
+                                continue;
+                            }
+                        }
+                        println!("{:?}", log);
+                    }
+                    Err(err) => eprintln!("Error: reading line number {}: {}", line_number, err),
                 }
             }
-            Err(_) => {
-                println!("Error: reading line number {}", line_number);
+            Err(err) => {
+                eprintln!("Error: reading line number {}: {}", line_number, err);
                 break;
             }
         }
     }
-}
-
-fn print_usage() {
-    println!("logs_analyzer <filename>");
 }

@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Method {
     GET,
     POST,
@@ -19,7 +19,7 @@ impl FromStr for Method {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        return match s {
+        return match &s.to_uppercase() as &str {
             "GET" => Ok(Self::GET),
             "POST" => Ok(Self::POST),
             "PATCH" => Ok(Self::PATCH),
@@ -35,7 +35,7 @@ impl FromStr for Method {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[allow(non_camel_case_types)]
 pub enum StatusCode {
     CONTINUE = 100,

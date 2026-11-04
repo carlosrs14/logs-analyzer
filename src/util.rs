@@ -1,3 +1,7 @@
+use std::{env, str::FromStr};
+
+use crate::http;
+
 #[derive(Debug)]
 pub struct DateTime {
     year: i16,
@@ -97,4 +101,82 @@ impl Ip {
     fn validate_ip(ip_str: &str) -> bool {
         ip_str.parse::<std::net::IpAddr>().is_ok()
     }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct CliArgs {
+    pub file_path: String,
+    pub method: Option<http::Method>,
+    pub status: Option<http::StatusCode>,
+}
+
+impl CliArgs {
+    pub fn parse() -> Result<Option<Self>, String> {
+        let args: Vec<String> = env::args().collect();
+        Self::from_args(&args)
+    }
+
+    pub fn from_args(args: &[String]) -> Result<Option<Self>, String> {
+        if args.len() < 2 {
+            return Err(String::from("Missing required log file argument"));
+        }
+
+        let mut file_path: Option<String> = None;
+        let mut method: Option<http::Method> = None;
+        let mut status: Option<http::StatusCode> = None;
+
+        let mut i = 1;
+        while i < args.len() {
+            match args[i].as_str() {
+                "-h" | "--help" => {
+                    print_usage();
+                    return Ok(None);
+                }
+                "-m" | "--method" => {
+                    i += 1;
+                    if i >= args.len() {
+                        return Err(String::from("Missing value for --method flag"));
+                    }
+                    let parsed_method = http::Method::from_str(&args[i])?;
+                    method = Some(parsed_method);
+                }
+                "-s" | "--status" => {
+                    i += 1;
+                    if i >= args.len() {
+                        return Err(String::from("Missing value for --status flag"));
+                    }
+                    let parsed_status = http::StatusCode::from_str(&args[i])?;
+                    status = Some(parsed_status);
+                }
+                arg if arg.starts_with('-') => {
+                    return Err(format!("Unknown option: {}", arg));
+                }
+                _ => {
+                    if file_path.is_none() {
+                        file_path = Some(args[i].clone());
+                    } else {
+                        return Err(format!("Unexpected additional positional argument: '{}'", args[i]));
+                    }
+                }
+            }
+            i += 1;
+        }
+
+        let file_path = file_path.ok_or_else(|| String::from("Missing required log file argument"))?;
+
+        Ok(Some(CliArgs {
+            file_path,
+            method,
+            status,
+        }))
+    }
+}
+
+pub fn print_usage() {
+    println!("Usage: logs-analyzer <filename> [OPTIONS]");
+    println!();
+    println!("Options:");
+    println!("  -m, --method <METHOD>   Filter logs by HTTP method (e.g. GET, POST, DELETE)");
+    println!("  -s, --status <CODE>     Filter logs by HTTP status code (e.g. 200, 404, 500)");
+    println!("  -h, --help              Print this help message");
 }
